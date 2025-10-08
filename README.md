@@ -204,10 +204,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Pygame](https://www.pygame.org/) for MIDI handling
 - Inspired by air piano and virtual instrument projects
 
-## Show Your Support
-
-If you found this project helpful, please give it a ⭐️!
-
 ---
 
-**Made with ❤️ and Python**
+**Made with Python**
