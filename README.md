@@ -1,4 +1,4 @@
-#SEPIA - Air Piano
+# SEPIA - Air Piano
 
 **Transform your hands into a virtual piano with AI-powered gesture recognition**
 
