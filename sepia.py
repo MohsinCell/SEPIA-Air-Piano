@@ -11,13 +11,13 @@ pygame.midi.init()
 player = pygame.midi.Output(0)
 player.set_instrument(0)  # Acoustic Grand Piano
 
-# Initialize Hand Detector with improved settings
+# Initialize Hand Detector 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 cap.set(cv2.CAP_PROP_FPS, 60)
 
-# Improved detector settings for better thumb recognition
+# Detector settings for thumb recognition
 detector = HandDetector(detectionCon=0.8, minTrackCon=0.6, maxHands=2)
 
 # Comprehensive Chord Library - All common chord types
@@ -112,7 +112,7 @@ CHORD_LIBRARY = {
     "B9": [71, 75, 78, 81, 85],
 }
 
-# Chord Presets - Popular progressions mapped to 10 fingers
+# Chord Presets
 CHORD_PRESETS = {
     "Pop": {  # I-V-vi-IV (C-G-Am-F)
         "left": {
@@ -265,7 +265,7 @@ note_history = deque(maxlen=15)
 fps_history = deque(maxlen=30)
 particle_effects = []
 
-# Improved finger detection with thumb calibration
+# Finger detection with thumb calibration
 finger_state_buffer = {
     hand: {finger: deque(maxlen=3) for finger in ["thumb", "index", "middle", "ring", "pinky"]} 
     for hand in ["left", "right"]
@@ -288,11 +288,11 @@ class NoteParticle:
         self.life -= 1
         return self.life > 0
 
-def improved_finger_detection(hand, lm_list):
-    """Improved finger detection with better thumb handling"""
+def finger_detection(hand, lm_list):
+    # Finger detection with thumb handling
     fingers = []
     
-    # Thumb detection - improved for better recognition
+    # Thumb detection
     if hand["type"] == "Right":
         # Right hand: thumb is open when tip (4) is to the LEFT of IP joint (3)
         if lm_list[4][0] < lm_list[3][0] - 10:  # Added threshold
@@ -306,7 +306,7 @@ def improved_finger_detection(hand, lm_list):
         else:
             fingers.append(0)
     
-    # Other four fingers - check if tip is above PIP joint
+    # Other four fingers
     tip_ids = [8, 12, 16, 20]
     pip_ids = [6, 10, 14, 18]
     
@@ -319,7 +319,7 @@ def improved_finger_detection(hand, lm_list):
     return fingers
 
 def smooth_finger_state(hand_type, finger_name, current_state):
-    """Smooth finger state to reduce jitter"""
+    # Smooth finger state to reduce jitter
     finger_state_buffer[hand_type][finger_name].append(current_state)
     
     # Use majority voting
@@ -330,7 +330,7 @@ def smooth_finger_state(hand_type, finger_name, current_state):
     return current_state
 
 def play_note(note_data, finger_name, hand_type, position):
-    """Play a chord with visual feedback"""
+    # Play a chord with visual feedback
     key = f"{hand_type}_{finger_name}"
     
     if key not in active_notes:
@@ -357,7 +357,7 @@ def play_note(note_data, finger_name, hand_type, position):
                                                  note_data["color"], note_data["name"]))
 
 def stop_note_delayed(note_data, finger_name, hand_type):
-    """Stop note after sustain time"""
+    # Stop note after sustain time
     time.sleep(SUSTAIN_TIME)
     key = f"{hand_type}_{finger_name}"
     
@@ -367,7 +367,7 @@ def stop_note_delayed(note_data, finger_name, hand_type):
         del active_notes[key]
 
 def draw_piano_keys(frame, h, w):
-    """Draw visual piano keys at the bottom"""
+    # Draw visual piano keys at the bottom
     key_height = 100
     key_width = w // 10
     
@@ -407,7 +407,7 @@ def draw_piano_keys(frame, h, w):
                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, (120, 120, 120), 1)
 
 def draw_ui(frame, fps):
-    """Draw UI overlay"""
+    # Draw UI overlay
     h, w = frame.shape[:2]
     
     overlay = frame.copy()
@@ -441,7 +441,7 @@ def draw_ui(frame, fps):
         y_offset += 22
 
 def draw_note_history(frame, w):
-    """Draw recent notes played"""
+    # Draw recent notes played
     if note_history:
         x_offset = w - 280
         y_offset = 20
@@ -464,14 +464,14 @@ def draw_note_history(frame, w):
                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 1)
 
 def draw_finger_indicators(frame, hands):
-    """Draw visual indicators for finger states"""
+    # Draw visual indicators for finger states
     if not hands:
         return
     
     for hand in hands:
         hand_type = "right" if hand["type"] == "Left" else "left"
         lm_list = hand["lmList"]
-        fingers = improved_finger_detection(hand, lm_list)
+        fingers = finger_detection(hand, lm_list)
         finger_names = ["thumb", "index", "middle", "ring", "pinky"]
         
         # Finger tip landmarks
@@ -498,7 +498,7 @@ def draw_finger_indicators(frame, hands):
                     cv2.circle(frame, (x, y), 15, color, 2)
 
 def update_particles(frame):
-    """Update and draw particle effects"""
+    # Update and draw particle effects
     global particle_effects
     
     for particle in particle_effects[:]:
@@ -518,7 +518,7 @@ def update_particles(frame):
                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
 def change_preset(direction):
-    """Change chord preset"""
+    # Change chord preset
     global preset_index, current_preset, notes_config, prev_states
     
     # Stop all active notes
@@ -567,7 +567,7 @@ try:
         if hands:
             for hand in hands:
                 hand_type = "right" if hand["type"] == "Left" else "left"
-                fingers = improved_finger_detection(hand, hand["lmList"])
+                fingers = finger_detection(hand, hand["lmList"])
                 lm_list = hand["lmList"]
                 
                 finger_names = ["thumb", "index", "middle", "ring", "pinky"]
